@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Upload Employees - Ethiopian Payroll Engine{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-title">Run Your Payroll</div>
+  <p style="margin-bottom: 1.5rem; color: var(--text-light);">
+    Upload a CSV file with your employee data. The system will calculate income tax (2025 brackets),
+    pension contributions, net pay, and generate PDF payslips — instantly.
+  </p>
+
+  <form method="post" enctype="multipart/form-data" id="uploadForm">
+    <div class="upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()">
+      <h3>Drop your CSV file here</h3>
+      <p>or click to browse &mdash; supports .csv files</p>
+      <input type="file" name="file" id="fileInput" accept=".csv" style="display:none;" onchange="showFileName(this)">
+      <p id="fileName" style="margin-top: 1rem; font-weight: 600; color: var(--primary);"></p>
+    </div>
+    <div style="margin-top: 1.5rem;">
+      <button type="submit" class="btn btn-primary" id="submitBtn">Process Payroll</button>
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  <div class="card-title">CSV Format</div>
+  <p style="margin-bottom: 1rem; color: var(--text-light);">
+    Your CSV must include these columns (header row required):
+  </p>
+  <table class="table">
+    <thead>
+      <tr><th>Column</th><th>Description</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>employee_id</td><td>Unique ID</td><td>E001</td></tr>
+      <tr><td>name</td><td>Full name</td><td>Alemayehu Bekele</td></tr>
+      <tr><td>basic_salary</td><td>Basic salary in ETB</td><td>5000</td></tr>
+      <tr><td>allowances</td><td>Total allowances in ETB</td><td>1000</td></tr>
+      <tr><td>bank_or_telebirr</td><td>Payment info</td><td>CBE:12345678</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+function showFileName(input) {
+  var name = input.files[0] ? input.files[0].name : '';
+  document.getElementById('fileName').textContent = name ? 'Selected: ' + name : '';
+  if(name) document.getElementById('submitBtn').style.display = 'inline-block';
+}
+</script>
+{% endblock %}

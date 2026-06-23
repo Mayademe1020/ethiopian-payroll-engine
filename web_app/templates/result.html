@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Payroll Results - Ethiopian Payroll Engine{% endblock %}
+{% block content %}
+
+<div class="summary-grid">
+  <div class="summary-card">
+    <div class="value">{{ total_employees }}</div>
+    <div class="label">Employees</div>
+  </div>
+  <div class="summary-card">
+    <div class="value">{{ "%.0f"|format(total_gross) }}</div>
+    <div class="label">Total Gross (ETB)</div>
+  </div>
+  <div class="summary-card">
+    <div class="value">{{ "%.0f"|format(total_tax) }}</div>
+    <div class="label">Tax Withheld (ETB)</div>
+  </div>
+  <div class="summary-card">
+    <div class="value">{{ "%.0f"|format(total_net) }}</div>
+    <div class="label">Total Net Pay (ETB)</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Compliance Health Score</div>
+  <div style="text-align: center; padding: 1rem;">
+    <div class="score-circle
+      {% if compliance_score >= 90 %}score-green
+      {% elif compliance_score >= 70 %}score-amber
+      {% else %}score-red{% endif %}">
+      {{ compliance_score }}
+    </div>
+    <div class="score-label">out of 100</div>
+    <p style="margin-top: 1rem;">{{ compliance_message }}</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Payroll Breakdown</div>
+  <div style="overflow-x: auto;">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th class="num">Basic</th>
+          <th class="num">Allowances</th>
+          <th class="num">Gross</th>
+          <th class="num">Tax</th>
+          <th class="num">Pension (Emp.)</th>
+          <th class="num">Pension (Co.)</th>
+          <th class="num">Net Pay</th>
+          <th>Payment Info</th>
+          <th>Payslip</th>
+          <th>Tax</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for emp in employees %}
+        <tr>
+          <td>{{ emp.id }}</td>
+          <td>{{ emp.name }}</td>
+          <td class="num">{{ "%.2f"|format(emp.basic) }}</td>
+          <td class="num">{{ "%.2f"|format(emp.allowances) }}</td>
+          <td class="num">{{ "%.2f"|format(emp.gross) }}</td>
+          <td class="num">{{ "%.2f"|format(emp.tax) }}</td>
+          <td class="num">{{ "%.2f"|format(emp.pension_employee) }}</td>
+          <td class="num">{{ "%.2f"|format(emp.pension_employer) }}</td>
+          <td class="num" style="font-weight: 700;">{{ "%.2f"|format(emp.net) }}</td>
+          <td style="font-size: 0.8rem;">{{ emp.bank }}</td>
+          <td>
+            <a href="{{ url_for('download_payslip', filename=emp.payslip_filename) }}" class="btn btn-success btn-sm">PDF</a>
+          </td>
+          <td>
+            <button type="button" class="btn btn-outline btn-sm" data-toggle="modal" data-target="#taxModal{{ loop.index0 }}">Explain</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<a href="{{ url_for('index') }}" class="btn btn-primary">Run Another Payroll</a>
+
+<!-- Tax Explanation Modals -->
+{% for emp in employees %}
+<div class="modal fade" id="taxModal{{ loop.index0 }}" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Tax Calculation — {{ emp.name }}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre>{{ emp.tax_explanation }}</pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<!-- Bootstrap JS for modals -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+{% endblock %}
