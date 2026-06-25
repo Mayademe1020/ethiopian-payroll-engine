@@ -7,6 +7,7 @@ from payroll_engine.tax import calculate_tax
 from payroll_engine.pension import employee_pension, employer_pension
 from payroll_engine.pdf import generate_payslip
 from payroll_engine.main import generate_tax_explanation
+from payroll_engine.telegram import send_payslip_notification_sync
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -16,7 +17,7 @@ app = Flask(__name__,
 app.secret_key = 'supersecretkey_change_in_production'
 app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'uploads')
 app.config['PAYSLIP_FOLDER'] = os.path.join(BASE_DIR, 'generated_payslips')
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
 
 ALLOWED_EXTENSIONS = {'csv'}
 
@@ -29,6 +30,7 @@ def allowed_file(filename):
 
 
 def process_payroll_from_csv(filepath):
+    """Process CSV and return payroll results with PDF payslips generated."""
     employees = []
     total_gross = 0.0
     total_tax = 0.0
@@ -43,6 +45,7 @@ def process_payroll_from_csv(filepath):
                 basic = float(row['basic_salary'])
                 allowances = float(row['allowances'])
                 bank_info = row['bank_or_telebirr'].strip()
+                telegram_id = row.get('telegram_id', '').strip()  # Optional
                 if basic < 0 or allowances < 0:
                     raise ValueError('Negative salary values')
             except (KeyError, ValueError) as e:
@@ -54,6 +57,7 @@ def process_payroll_from_csv(filepath):
             pension_emp_total = employer_pension(basic)
             net = gross - tax - pension_emp
 
+            # Generate payslip PDF
             payslip_filename = f"payslip_{emp_id}_{uuid.uuid4().hex[:8]}.pdf"
             payslip_path = os.path.join(app.config['PAYSLIP_FOLDER'], payslip_filename)
             generate_payslip({
@@ -69,7 +73,35 @@ def process_payroll_from_csv(filepath):
                 'bank_or_telebirr': bank_info
             }, payslip_path)
 
+            # Construct the payslip URL for sharing
+            payslip_url = url_for('download_payslip', filename=payslip_filename, _external=True)
+
+            # Tax explanation
             tax_explanation = generate_tax_explanation(gross, tax)
+
+            # Initialize Telegram tracking
+            telegram_status = 'not_provided'
+            telegram_error = None
+
+            # Send Telegram notification if ID provided
+            if telegram_id:
+                try:
+                    success = send_payslip_notification_sync(
+                        telegram_id=telegram_id,
+                        employee_name=name,
+                        payslip_url=payslip_url,
+                        pay_period="Current Period"
+                    )
+                    if success:
+                        telegram_status = 'sent'
+                    else:
+                        telegram_status = 'failed'
+                except Exception as e:
+                    telegram_status = 'error'
+                    telegram_error = str(e)
+                    # Log but don't fail the entire payroll run
+                    import logging
+                    logging.error(f"Failed to send Telegram to {telegram_id}: {e}")
 
             employees.append({
                 'id': emp_id,
@@ -82,7 +114,11 @@ def process_payroll_from_csv(filepath):
                 'pension_employer': pension_emp_total,
                 'net': net,
                 'bank': bank_info,
+                'telegram_id': telegram_id if telegram_id else None,
+                'telegram_status': telegram_status,
+                'telegram_error': telegram_error,
                 'payslip_filename': payslip_filename,
+                'payslip_url': payslip_url,
                 'tax_explanation': tax_explanation
             })
             total_gross += gross
@@ -93,6 +129,7 @@ def process_payroll_from_csv(filepath):
 
 
 def compute_compliance_score(employees):
+    """Simple compliance health score (0-100)."""
     score = 100
     messages = []
     for e in employees:
@@ -154,4 +191,4 @@ def download_payslip(filename):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=False, host='0.0.0.0', port=5000)

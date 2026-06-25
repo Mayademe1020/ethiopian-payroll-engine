@@ -1,2 +1,4 @@
 reportlab>=3.6.0
 pandas>=2.0.0
+python-telegram-bot>=20.0
+flask>=2.0.0

@@ -1,71 +1,88 @@
 # Ethiopian Payroll Engine
 
-This is a core payroll engine for Ethiopian SMEs that calculates income tax (2025 brackets), POSSA pension (employee 7%, employer 11%), and generates net pay.
+This is a core payroll engine for Ethiopian SMEs that calculates income tax (2025 brackets), POSSA pension (employee 7%, employer 11%), and generates net pay. Now includes Telegram notification delivery!
 
 ## Features
+- **Tax calculation** - Uses the 2025 progressive brackets (0%‑35%) as marginal rates
+- **Pension calculation** - Employee 7 %, Employer 11 % of basic salary
+- **CSV/Excel import** - Reads employee data with validation
+- **Payslip generation** - Creates printable PDF payslips (Amharic + English)
+- **Telegram notifications** - Automatically sends payslip alerts to employees via Telegram
+- **Compliance health score** - Visual indicator of payroll risks
+- **Tax explanations** - Plain-language breakdown of tax calculations
+- **Offline capable** - Core engine works without internet (Telegram delivery requires connection)
 
-- Tax calculation according to Ethiopian 2025 progressive tax brackets.
-- POSSA pension calculation (employee 7%, employer 11% of basic salary).
-- Net pay computation.
-- CSV input for employee roster.
-- Outputs payslip‑style summary (can be extended to generate PDF payslips).
+## How It Works
+1. **Prepare CSV** - Include columns: employee_id, name, basic_salary, allowances, bank_or_telebirr, telegram_id (optional)
+2. **Upload** - Drag and drop your CSV file
+3. **Process** - System calculates taxes, pensions, net pay
+4. **Get Results** - 
+   - View detailed payroll breakdown
+   - Download PDF payslips for each employee
+   - See Telegram delivery status
+   - Get compliance health score
+5. **Employees notified** - Those with Telegram IDs receive payslip links via Telegram
 
-## Requirements
+## CSV Format
+Your CSV must include these columns:
+- `employee_id` - Unique identifier (e.g., E001)
+- `name` - Full name (e.g., Alemayehu Bekele)
+- `basic_salary` - Basic salary in ETB (e.g., 5000)
+- `allowances` - Total allowances in ETB (e.g., 1000)
+- `bank_or_telebirr` - Payment info (e.g., CBE:12345678)
+- `telegram_id` - **Optional** Telegram username (without @) or chat ID (e.g., alemeyehu or 123456789)
 
-- Python 3.11 or later
-- No external dependencies for the core engine (the plan includes ReportLab for PDF generation, but not required for the demo).
+## Setup Instructions
 
-## Usage
+### 1. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
 
-1. Clone the repository.
-2. Ensure you have a CSV file with the following columns:
-   - `employee_id`
-   - `name`
-   - `basic_salary`
-   - `allowances`
-   - `bank_or_telebirr` (optional for output)
-3. Run the engine:
-
+### 2. Configure Telegram Bot (Optional but Recommended)
+To enable Telegram notifications:
+1. Talk to [@BotFather](https://t.me/BotFather) on Telegram
+2. Send `/newbot` and follow the prompts
+3. You'll receive a bot token (looks like: `123456789:ABCdefGHIjklMNOpqrsTUVwxyz`)
+4. Set it as an environment variable:
    ```bash
-   python -m payroll_engine.main path/to/employees.csv
+   set TELEGRAM_BOT_TOKEN=your_token_here  # Windows
+   export TELEGRAM_BOT_TOKEN=your_token_here  # Linux/Mac
    ```
+5. Restart the application
 
-   If no path is provided, it defaults to `sample_employees.csv`.
-
-## Example
-
-See the output when running with the provided `sample_employees.csv`:
-
-```
-Ethiopian Payroll Engine - Sample Output
-============================================================
-Employee ID: E001
-Name: Alemayehu
-Basic Salary: ETB 3,500.00
-Allowances: ETB 500.00
-Gross Salary: ETB 4,000.00
-Income Tax (2025): ETB 299.85
-Employee Pension (7%): ETB 245.00
-Employer Pension (11%): ETB 385.00
-Net Pay: ETB 3,455.15
-Payment Method: Telebirr:0911111111
-...
+### 3. Run the Application
+```bash
+python run_web.py
 ```
 
-## Implementation Details
+### 4. Use the Application
+Open your browser to: http://localhost:5000
 
-The engine is split into modules:
-- `tax.py`: Contains `calculate_tax(gross)` function.
-- `pension.py`: Contains `employee_pension(basic)` and `employer_pension(basic)` functions.
-- `main.py`: Reads CSV, computes payroll, and prints results.
+## Example Usage
+1. Download the sample file: [sample_employees.csv](sample_employees.csv)
+2. Upload it via the web interface
+3. View results - notice the Telegram delivery status column
+4. Click "PDF" to download any payslip
+5. Click "Explain" to see how tax was calculated
 
-## Future Work
-
-- PDF payslip generation (using ReportLab).
-- Integration with Telebirr disbursement API (two‑phase intent → paid).
-- Offline‑first Android app (React Native/Expo).
-- Comprehensive test suite and CI/CD.
+## Technology Stack
+- **Backend**: Python/Flask
+- **PDF Generation**: ReportLab
+- **Telegram Bot**: python-telegram-bot
+- **Data Processing**: Pandas
+- **Frontend**: HTML/CSS/JavaScript (Bootstrap-inspired)
 
 ## License
+MIT License - feel free to use and modify for your Ethiopian payroll needs.
 
-MIT
+## Next Steps (Planned)
+- Employee self-service portal via Telegram
+- Leave management integration
+- Multi-tenant SaaS version
+- Biometric attendance integration (ZKTeco, etc.)
+- WhatsApp Business API support
+- AI-powered compliance assistant
+
+---
+Ethiopian Payroll Engine &copy; 2026 - Built for Ethiopian businesses

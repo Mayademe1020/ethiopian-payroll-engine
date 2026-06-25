@@ -1,0 +1,11 @@
+employee_id,name,basic_salary,allowances,bank_or_telebirr,telegram_id
+E001,Alemayehu Bekele,3500,500,CBE:1001002003,@alemayehu_b
+E002,Belayneh Ayele,4200,800,AWASH:2003004005,@belayneh_a
+E003,Chaltu Gurmu,2800,300,TELEBIRR:0911111111,
+E004,Dawit Wolde,5500,1200,ABY:3004006007,@testuser
+E005,Eyerus Solomon,3100,400,DASHEN:4005007008,
+E006,Gete Yohannes,6200,1500,CBE:5006007009,
+E007,Hanna Girma,1800,200,TELEBIRR:0922222222,
+E008,Tadesse Mengistu,8500,2000,CBE:7008009010,
+E009,Wubetu Kemal,1500,100,AWASH:900101112,
+E010,Zelalem Fikadu,12000,3000,ABY:200201314,

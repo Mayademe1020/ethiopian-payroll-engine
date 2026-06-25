@@ -5,7 +5,7 @@
   <div class="card-title">Run Your Payroll</div>
   <p style="margin-bottom: 1.5rem; color: var(--text-light);">
     Upload a CSV file with your employee data. The system will calculate income tax (2025 brackets),
-    pension contributions, net pay, and generate PDF payslips — instantly.
+    pension contributions, net pay, generate PDF payslips, and send notifications via Telegram.
   </p>
 
   <form method="post" enctype="multipart/form-data" id="uploadForm">
@@ -28,16 +28,20 @@
   </p>
   <table class="table">
     <thead>
-      <tr><th>Column</th><th>Description</th><th>Example</th></tr>
+      <tr><th>Column</th><th>Description</th><th>Required</th><th>Example</th></tr>
     </thead>
     <tbody>
-      <tr><td>employee_id</td><td>Unique ID</td><td>E001</td></tr>
-      <tr><td>name</td><td>Full name</td><td>Alemayehu Bekele</td></tr>
-      <tr><td>basic_salary</td><td>Basic salary in ETB</td><td>5000</td></tr>
-      <tr><td>allowances</td><td>Total allowances in ETB</td><td>1000</td></tr>
-      <tr><td>bank_or_telebirr</td><td>Payment info</td><td>CBE:12345678</td></tr>
+      <tr><td>employee_id</td><td>Unique ID</td><td>Yes</td><td>E001</td></tr>
+      <tr><td>name</td><td>Full name</td><td>Yes</td><td>Alemayehu Bekele</td></tr>
+      <tr><td>basic_salary</td><td>Basic salary in ETB</td><td>Yes</td><td>5000</td></tr>
+      <tr><td>allowances</td><td>Total allowances in ETB</td><td>Yes</td><td>1000</td></tr>
+      <tr><td>bank_or_telebirr</td><td>Payment info (e.g., CBE:12345678)</td><td>Yes</td><td>CBE:12345678</td></tr>
+      <tr><td>telegram_id</td><td>Telegram username (without @) or chat ID</td><td>No</td><td>alemayehu or 123456789</td></tr>
     </tbody>
   </table>
+  <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-light);">
+    <strong>Note:</strong> The telegram_id column is optional. If provided, payslip notifications will be sent via Telegram.
+  </p>
 </div>
 
 <script>

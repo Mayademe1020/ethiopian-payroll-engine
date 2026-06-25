@@ -51,6 +51,7 @@
           <th class="num">Pension (Co.)</th>
           <th class="num">Net Pay</th>
           <th>Payment Info</th>
+          <th>Telegram</th>
           <th>Payslip</th>
           <th>Tax</th>
         </tr>
@@ -69,7 +70,25 @@
           <td class="num" style="font-weight: 700;">{{ "%.2f"|format(emp.net) }}</td>
           <td style="font-size: 0.8rem;">{{ emp.bank }}</td>
           <td>
-            <a href="{{ url_for('download_payslip', filename=emp.payslip_filename) }}" class="btn btn-success btn-sm">PDF</a>
+            {% if emp.telegram_id %}
+              {% if emp.telegram_status == 'sent' %}
+                <span style="color: var(--success); font-size: 0.9rem;">✓ Sent</span>
+              {% elif emp.telegram_status == 'failed' or emp.telegram_status == 'error' %}
+                <span style="color: var(--danger); font-size: 0.9rem;">✗ Failed</span>
+                {% if emp.telegram_error %}
+                  <br><small style="color: var(--text-light);">{{ emp.telegram_error[:20] }}...</small>
+                {% endif %}
+              {% elif emp.telegram_status == 'not_provided' %}
+                <span style="color: var(--text-light); font-size: 0.9rem;">Not provided</span>
+              {% else %}
+                <span style="color: var(--warning); font-size: 0.9rem;">Pending</span>
+              {% endif %}
+            {% else %}
+              <span style="color: var(--text-light); font-size: 0.9rem;">Not provided</span>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{{ emp.payslip_url }}" class="btn btn-success btn-sm">PDF</a>
           </td>
           <td>
             <button type="button" class="btn btn-outline btn-sm" data-toggle="modal" data-target="#taxModal{{ loop.index0 }}">Explain</button>
@@ -105,9 +124,5 @@
 </div>
 {% endfor %}
 
-<!-- Bootstrap JS for modals -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
+<!-- Bootstrap JS for tooltips -->
 {% endblock %}
